@@ -127,14 +127,34 @@ def load_vit_backbone_checkpoint(base: VisionEncoder, checkpoint: str) -> None:
     # Create a filtered state dict for the VIT-MAE part only
     vit_mae_state_dict = {}
     model_sd = base.vision_encoder.state_dict()
+    total_ckpt_keys = 0
+    skipped_absent = 0
+    skipped_shape = 0
+    matched = 0
     for key, value in ckpt_vit_pretrain.items():  # type: ignore[union-attr]
-        if key.startswith("vit_mae."):
-            model_key = _mae_key_to_vit(key)
-            if model_key in model_sd:
-                if model_sd[model_key].shape == value.shape:
-                    vit_mae_state_dict[model_key] = value
+        if not key.startswith("vit_mae."):
+            continue
+        total_ckpt_keys += 1
+        model_key = _mae_key_to_vit(key)
+        if model_key not in model_sd:
+            skipped_absent += 1
+            continue
+        if model_sd[model_key].shape != value.shape:
+            skipped_shape += 1
+            continue
+        vit_mae_state_dict[model_key] = value
+        matched += 1
+
+    print(f"[BEAST] checkpoint vit_mae keys: {total_ckpt_keys}")
+    print(f"[BEAST] model vision_encoder keys: {len(model_sd)}")
+    print(f"[BEAST] matched: {matched}")
+    print(f"[BEAST] skipped (key absent from model): {skipped_absent}")
+    print(f"[BEAST] skipped (shape mismatch): {skipped_shape}")
+
     # Load the filtered weights
-    base.vision_encoder.load_state_dict(vit_mae_state_dict, strict=False)
+    result = base.vision_encoder.load_state_dict(vit_mae_state_dict, strict=False)
+    print(f"[BEAST] load_state_dict missing_keys: {len(result.missing_keys)}")
+    print(f"[BEAST] load_state_dict unexpected_keys: {len(result.unexpected_keys)}")
 
 
 def _load_dinov3_with_auth_check(model_name: str, pretrained_patch_size: int) -> VisionEncoderDino:
