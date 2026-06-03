@@ -24,6 +24,7 @@ ALLOWED_BACKBONES = Literal[
     "vitb_dinov2",
     "vitb_dinov3",
     "vitb_imagenet",
+    "vitb_beast",
     "vitb_sam",
 ]
 
@@ -35,5 +36,6 @@ ALLOWED_TRANSFORMER_BACKBONES = Literal[
     "vitb_dinov2",
     "vitb_dinov3",
     "vitb_imagenet",
+    "vitb_beast",
     "vitb_sam",
 ]
