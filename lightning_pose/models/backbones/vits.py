@@ -103,14 +103,35 @@ def load_vit_backbone_checkpoint(base: VisionEncoder, checkpoint: str) -> None:
     # extract state dict if checkpoint contains additional info
     if "state_dict" in ckpt_vit_pretrain:
         ckpt_vit_pretrain = ckpt_vit_pretrain["state_dict"]
+    # Map MAE checkpoint keys to HuggingFace ViTModel keys
+    # MAE (vit-mae) uses one naming convention, ViTModel uses another:
+    #   encoder.layer.N.attention.attention.query  ->  layers.N.attention.q_proj
+    #   encoder.layer.N.attention.attention.key    ->  layers.N.attention.k_proj
+    #   encoder.layer.N.attention.attention.value  ->  layers.N.attention.v_proj
+    #   encoder.layer.N.attention.output.dense     ->  layers.N.attention.o_proj
+    #   encoder.layer.N.intermediate.dense         ->  layers.N.mlp.fc1
+    #   encoder.layer.N.output.dense               ->  layers.N.mlp.fc2
+    #   encoder.layer.N.layernorm_before           ->  layers.N.layernorm_before
+    #   encoder.layer.N.layernorm_after            ->  layers.N.layernorm_after
+    def _mae_key_to_vit(mae_key: str) -> str:
+        mae_key = mae_key.replace("vit_mae.vit.", "")
+        mae_key = mae_key.replace("encoder.layer", "layers")
+        mae_key = mae_key.replace("attention.attention.query", "attention.q_proj")
+        mae_key = mae_key.replace("attention.attention.key", "attention.k_proj")
+        mae_key = mae_key.replace("attention.attention.value", "attention.v_proj")
+        mae_key = mae_key.replace("attention.output.dense", "attention.o_proj")
+        mae_key = mae_key.replace("intermediate.dense", "mlp.fc1")
+        mae_key = mae_key.replace("output.dense", "mlp.fc2")
+        return mae_key
+
     # Create a filtered state dict for the VIT-MAE part only
     vit_mae_state_dict = {}
+    model_sd = base.vision_encoder.state_dict()
     for key, value in ckpt_vit_pretrain.items():  # type: ignore[union-attr]
         if key.startswith("vit_mae."):
-            model_key = key.replace("vit_mae.vit.", "")
-            # Check if shapes match before including in state dict
-            if model_key in base.vision_encoder.state_dict():
-                if base.vision_encoder.state_dict()[model_key].shape == value.shape:
+            model_key = _mae_key_to_vit(key)
+            if model_key in model_sd:
+                if model_sd[model_key].shape == value.shape:
                     vit_mae_state_dict[model_key] = value
     # Load the filtered weights
     base.vision_encoder.load_state_dict(vit_mae_state_dict, strict=False)

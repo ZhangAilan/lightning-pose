@@ -4,6 +4,8 @@ data/*
 data/mouse_beast/*
 !data/mouse_beast/config.yaml
 
+outputs/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -152,7 +154,7 @@ data/Chickadee
 lightning_logs/
 grid_artifacts/
 .vscode/
-outputs/
+
 multirun/
 preds/
 scripts/.ipynb_checkpoints
