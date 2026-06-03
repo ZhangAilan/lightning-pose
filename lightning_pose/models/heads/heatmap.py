@@ -157,7 +157,7 @@ class HeatmapHead(nn.Module):
         out_channels: int,
         deconv_out_channels: int | None = None,
         downsample_factor: int = 2,
-        final_softmax: bool = False,
+        final_softmax: bool = True,
     ) -> None:
         """
 
