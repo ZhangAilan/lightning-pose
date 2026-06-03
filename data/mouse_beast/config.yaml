@@ -1,0 +1,88 @@
+data:
+  image_resize_dims:
+    height: 384
+    width: 384
+  data_dir: ${LP_ROOT_PATH:}/data/mouse_beast
+  video_dir: ${data.data_dir}
+  csv_file: CollectedData.csv
+  num_keypoints: 44
+  keypoint_names:
+    - mouse1_EarL
+    - mouse1_EarR
+    - mouse1_Snout
+    - mouse1_SpineF
+    - mouse1_SpineM
+    - mouse1_Tail(base)
+    - mouse1_Tail(mid)
+    - mouse1_Tail(end)
+    - mouse1_ForepawL
+    - mouse1_WristL
+    - mouse1_ElbowL
+    - mouse1_ShoulderL
+    - mouse1_ForepawR
+    - mouse1_WristR
+    - mouse1_ElbowR
+    - mouse1_ShoulderR
+    - mouse1_HindpawL
+    - mouse1_AnkleL
+    - mouse1_KneeL
+    - mouse1_HindpawR
+    - mouse1_AnkleR
+    - mouse1_KneeR
+    - mouse2_EarL
+    - mouse2_EarR
+    - mouse2_Snout
+    - mouse2_SpineF
+    - mouse2_SpineM
+    - mouse2_Tail(base)
+    - mouse2_Tail(mid)
+    - mouse2_Tail(end)
+    - mouse2_ForepawL
+    - mouse2_WristL
+    - mouse2_ElbowL
+    - mouse2_ShoulderL
+    - mouse2_ForepawR
+    - mouse2_WristR
+    - mouse2_ElbowR
+    - mouse2_ShoulderR
+    - mouse2_HindpawL
+    - mouse2_AnkleL
+    - mouse2_KneeL
+    - mouse2_HindpawR
+    - mouse2_AnkleR
+    - mouse2_KneeR
+training:
+  imgaug: dlc
+  train_batch_size: 16
+  val_batch_size: 16
+  train_prob: 0.85
+  val_prob: 0.15
+  unfreezing_epoch: 20
+  min_epochs: 300
+  max_epochs: 300
+  optimizer: AdamW
+  optimizer_params:
+    learning_rate: 1e-3
+  lr_scheduler: multisteplr
+  lr_scheduler_params:
+    multisteplr:
+      milestones: [150, 200, 250]
+      gamma: 0.5
+  rng_seed_data_pt: 0
+  rng_seed_model_pt: 0
+model:
+  losses_to_use: []
+  backbone: vitb_beast
+  backbone_checkpoint: ${LP_ROOT_PATH:}/model/epoch%3D799-step%3D36000-best.ckpt
+  model_type: heatmap
+  heatmap_loss_type: mse
+  model_name: mouse_pose_vitb_beast
+dali:
+  base:
+    train:
+      sequence_length: 1
+    predict:
+      sequence_length: 1
+eval:
+  predict_vids_after_training: false
+  test_videos_directory: null

@@ -1,5 +1,8 @@
 model/
-data/
+data/*
+!data/mouse_beast/
+data/mouse_beast/*
+!data/mouse_beast/config.yaml
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
