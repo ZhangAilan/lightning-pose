@@ -58,6 +58,9 @@ training:
   train_prob: 0.85
   val_prob: 0.15
   num_gpus: 1
+  test_batch_size: 16
+  train_frames: 1
+  log_every_n_steps: 1
   unfreezing_epoch: 20
   min_epochs: 300
   max_epochs: 300
