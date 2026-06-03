@@ -185,8 +185,26 @@ class VisionEncoder(torch.nn.Module):
             model_name: HuggingFace model identifier (e.g., ``"facebook/dino-vitb16"``).
         """
         super().__init__()
-        from transformers import ViTModel
-        self.vision_encoder = ViTModel.from_pretrained(model_name, add_pooling_layer=False)
+        from transformers import ViTConfig, ViTModel
+        try:
+            self.vision_encoder = ViTModel.from_pretrained(
+                model_name, add_pooling_layer=False,
+            )
+        except OSError:
+            # Offline fallback: construct ViT-Base from config, then load checkpoint weights
+            self.vision_encoder = ViTModel(
+                ViTConfig(
+                    hidden_size=768,
+                    num_hidden_layers=12,
+                    num_attention_heads=12,
+                    intermediate_size=3072,
+                    patch_size=16,
+                    image_size=224,
+                    hidden_act="gelu",
+                    qkv_bias=True,
+                ),
+                add_pooling_layer=False,
+            )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Forward pass through the vision encoder.
