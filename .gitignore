@@ -5,6 +5,7 @@ data/mouse_beast/*
 !data/mouse_beast/config.yaml
 
 outputs/
+scripts/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
