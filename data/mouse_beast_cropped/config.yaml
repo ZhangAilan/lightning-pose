@@ -1,7 +1,7 @@
 data:
   image_resize_dims:
-    height: 224
-    width: 224
+    height: 256
+    width: 256
   data_dir: ${LP_ROOT_PATH:}/data/mouse_beast_cropped
   video_dir: ${data.data_dir}
   csv_file: CollectedData.csv
