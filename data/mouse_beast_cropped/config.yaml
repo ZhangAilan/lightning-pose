@@ -1,0 +1,88 @@
+data:
+  image_resize_dims:
+    height: 224
+    width: 224
+  data_dir: ${LP_ROOT_PATH:}/data/mouse_beast_cropped
+  video_dir: ${data.data_dir}
+  csv_file: CollectedData.csv
+  num_keypoints: 22
+  keypoint_names:
+    - EarL
+    - EarR
+    - Snout
+    - SpineF
+    - SpineM
+    - Tail(base)
+    - Tail(mid)
+    - Tail(end)
+    - ForepawL
+    - WristL
+    - ElbowL
+    - ShoulderL
+    - ForepawR
+    - WristR
+    - ElbowR
+    - ShoulderR
+    - HindpawL
+    - AnkleL
+    - KneeL
+    - HindpawR
+    - AnkleR
+    - KneeR
+
+training:
+  imgaug: dlc
+  train_batch_size: 32
+  val_batch_size: 32
+  train_prob: 0.85
+  val_prob: 0.15
+  num_gpus: 1
+  test_batch_size: 32
+  train_frames: 1
+  log_every_n_steps: 1
+  unfreezing_epoch: 20
+  min_epochs: 300
+  max_epochs: 300
+  optimizer: AdamW
+  optimizer_params:
+    learning_rate: 1e-3
+  lr_scheduler: multisteplr
+  lr_scheduler_params:
+    multisteplr:
+      milestones: [150, 200, 250]
+      gamma: 0.5
+  rng_seed_data_pt: 0
+  rng_seed_model_pt: 0
+
+losses:
+  pca_multiview:
+    log_weight: 10.7
+    components_to_keep: 3
+    epsilon: null
+  pca_singleview:
+    log_weight: 10.7
+    components_to_keep: 0.99
+    epsilon: null
+  temporal:
+    log_weight: 10.7
+    epsilon: 20
+    prob_threshold: 0.05
+
+model:
+  losses_to_use: []
+  backbone: vitb_beast
+  backbone_checkpoint: ${LP_ROOT_PATH:}/model/epoch%3D799-step%3D36000-best.ckpt
+  model_type: heatmap
+  heatmap_loss_type: mse
+  model_name: mouse_pose_vitb_beast_cropped
+
+dali:
+  base:
+    train:
+      sequence_length: 1
+    predict:
+      sequence_length: 1
+
+eval:
+  predict_vids_after_training: false
+  test_videos_directory: null
